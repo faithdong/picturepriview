@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link href="./css/picturepriview.css" rel="stylesheet" />
+  <script src="./js/picturepriview.js"></script>
+</head>
+
+<body>
+  <h1>图片预览插件</h1>
+  <script>
+    var data = {
+      imgType1: [
+        { src: 'https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png' },
+        { src: './images/img1.jpg' },
+        { src: './images/img2.jpg' },
+        //{src: './images/img3.jpg'}
+      ],
+      imgType2: [
+        { src: './images/type2img1.jpg' },
+        { src: './images/type2img2.jpg' },
+        { src: './images/type2img3.jpg' }
+      ],
+      imgType3: [
+        { src: './images/type2img2.jpg'},
+        { src: './images/type2img3.jpg'},
+        { src: './images/img2.jpg'},
+      
+      ]
+    };
+    var picturepriview = new PicturePriview(data);
+  </script>
+</body>
+
+</html>
