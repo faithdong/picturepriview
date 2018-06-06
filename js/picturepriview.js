@@ -177,7 +177,7 @@
       + '<div class="fd" id="scaler"></div>'
       + '</div>'
       + '<div class="pp-card">'
-      //+ '<div class="pp-card-anchor-prv prv"><img src="./images/prv.png" /></div>'
+      + '<div class="pp-card-anchor-prv prv" id="imgprv" style="z-index:2106"><img src="./images/prv.png" /></div>'
       + '<div class="spec-list" id="speclist">'
       + '<div class="spec-items" id="specitems">'
       + '<ul>'
@@ -187,7 +187,7 @@
       + '</ul>'
       + '</div>'
       + '</div>'
-      //+ '<div class="pp-card-anchor-next next"><img src="./images/next.png" /></div>'
+      + '<div class="pp-card-anchor-next next" id="imgnext" style="z-index:2106"><img src="./images/next.png" /></div>'
       + '</div>'
       + '<div class="pp-image-max" id="mirrorDiv">'
       + '<img alt="example" id="maximg"  />'
@@ -201,7 +201,6 @@
     return strHtml;
 
   };
-
 
 
   /**
@@ -222,6 +221,9 @@
       li.appendChild(img);
       specitems.appendChild(li);
     }
+    //默认给缩略图第一张加border
+    var img = specitems.children[0].firstChild;
+    img.className = 'stld';
     //3、添加图片分类
     var imgcategory = document.querySelector('#imgcategory');
     var namAry = ['场景图', '细节图', '腿色图'];
@@ -246,18 +248,20 @@
             if (index != i) {
               var li = specitems.children[i];
               var img = li.firstChild;
-              img.style.border = '';
+              //img.style.border = '';
+              img.className = '';
             } else {
               var li = specitems.children[i];
               var img = li.firstChild;
-              img.style.border = '2px solid rgb(32, 192, 117)';
-              if(imgCgyFlag == 0){
+              //img.style.border = '2px solid rgb(32, 192, 117)';
+              img.className = 'stld';
+              if (imgCgyFlag == 0) {
                 normalimg.src = imagesData.imgType1[index].src;
                 maximg.src = imagesData.imgType1[index].src;
-              }else if(imgCgyFlag == 1){
+              } else if (imgCgyFlag == 1) {
                 normalimg.src = imagesData.imgType2[index].src;
                 maximg.src = imagesData.imgType2[index].src;
-              }else{
+              } else {
                 normalimg.src = imagesData.imgType3[index].src;
                 maximg.src = imagesData.imgType3[index].src;
               }
@@ -265,19 +269,27 @@
           }
         };
       })(i);
+
+      li.onmouseout = (function(index){
+        return function(){
+          var li = specitems.children[index];
+          var img = li.firstChild;
+          img.className = '';
+        }
+      })(i);
     }
     //5、添加图片分类onclick事件
     var imgcategory = document.getElementById("imgcategory").getElementsByTagName("div");
     for (var j = 0; j < imgcategory.length; j++) {
       var categoryDiv = imgcategory[j];
-      categoryDiv.onclick = function(e){
+      categoryDiv.onclick = function (e) {
         console.log(e);
         var cgyDiv = e.target;
         var cgyType = cgyDiv.getAttribute('category-index');
         var specitems = document.querySelector('#specitems ul');//多张缩略图
         var maximg = document.getElementById('maximg');//放大图
         var normalimg = document.querySelector('#normalimgdiv img');//单张缩略图
-        if(cgyType=='0'){//场景图
+        if (cgyType == '0') {//场景图
           imgCgyFlag = 0;
           for (var i = 0; i < imagesData.imgType1.length; i++) {
             var li = specitems.children[i];
@@ -285,8 +297,11 @@
             img.src = imagesData.imgType1[i].src;
           }
           normalimg.src = imagesData.imgType1[0].src;
-          maximg.src =imagesData.imgType1[0].src;
-        }else if(cgyType == '1'){ //细节图
+          maximg.src = imagesData.imgType1[0].src;
+          //默认给缩略图第一张加border
+          var img = specitems.children[0].firstChild;
+          img.className = 'stld';
+        } else if (cgyType == '1') { //细节图
           imgCgyFlag = 1;
           for (var i = 0; i < imagesData.imgType2.length; i++) {
             var li = specitems.children[i];
@@ -295,19 +310,88 @@
           }
           normalimg.src = imagesData.imgType2[0].src;
           maximg.src = imagesData.imgType2[0].src;
-        }else{ //腿色图
-          imgCgyFlag= 2;
+          //默认给缩略图第一张加border
+          var img = specitems.children[0].firstChild;
+          img.className = 'stld';
+        } else { //腿色图
+          imgCgyFlag = 2;
           for (var i = 0; i < imagesData.imgType3.length; i++) {
             var li = specitems.children[i];
             var img = li.firstChild;
             img.src = imagesData.imgType3[i].src;
           }
           normalimg.src = imagesData.imgType3[0].src;
-          maximg.src =imagesData.imgType3[0].src;
+          maximg.src = imagesData.imgType3[0].src;
+          //默认给缩略图第一张加border
+          var img = specitems.children[0].firstChild;
+          img.className = 'stld';
         }
       }
     }
 
+    //6、添加图片上一页，下一页onclick事件
+    var imgprv = document.getElementById('imgprv');
+    var imgnext = document.getElementById('imgnext');
+    imgprv.onclick = function (e) {
+      e.preventDefault();
+      //1、获取到li缩略图数据及当前选中的缩略图的index
+      debugger;
+      var liList = specitems.children;
+      var crtImgIdx = 0;
+      for (var i = 0; i < liList.length; i++) {
+        var img = liList[i].firstChild;
+        var clsFlag = img.hasAttribute('class');
+        if (clsFlag === true) {
+          crtImgIdx = i;
+          return;
+        }
+      }
+      //2、根据缩略图索引值判断是否还有上一张图片
+      if (liList.length > 3 && crtImgIdx > 3) {  //这个 3 是因为在设计html和css时，只设计了显示3张缩略图的宽度
+        //1、计算偏移量
+
+        //2、设置坐标位置
+
+        //3、
+      }
+
+    };
+    imgnext.onclick = function (e) {
+      e.preventDefault();
+      //1、获取到li缩略图数据及当前选中的缩略图的index
+      debugger;
+      var liList = specitems.children;
+      var crtImgIdx = 0;
+      for (var i = 0; i < liList.length; i++) {
+        var img = liList[i].firstChild;
+        var clsFlag = img.hasAttribute('class');
+        if (clsFlag === true) {
+          if (img.getAttribute('class') == 'stld') {
+            //crtImgIdx = i;
+            crtImgIdx = parseInt(img.getAttribute('data-index'));
+          }
+        }
+      }
+      //2、判断是否有下一张图片
+      if (crtImgIdx < liList.length - 1) {
+        if (crtImgIdx == 0) {
+          liList[crtImgIdx].style.display = 'none';
+          liList[crtImgIdx+1].firstChild.className = 'stld';
+        }
+        if (crtImgIdx > 0) {
+          if(liList.length - crtImgIdx <= 3 ){
+            liList[crtImgIdx].firstChild.className = '';
+            liList[crtImgIdx+1].firstChild.className = 'stld';
+          }else{
+            liList[crtImgIdx].style.display = 'none';
+            liList[crtImgIdx+1].firstChild.className = 'stld';
+          }
+        }
+
+      } else {
+        return;
+      }
+    };
 
   };
 

@@ -112,7 +112,7 @@ li {
 }
 
 .spec-list .spec-items ul {
-    position: absolute;
+    /* position: absolute; */
     width: 668px;
     top: 0px;
     left: 0px;
@@ -129,6 +129,10 @@ li {
     width: 125px;
     height: 90px;
     /* border: 2px solid rgb(32, 192, 117); */
+}
+
+.stld {
+    border: 2px solid rgb(32, 192, 117);
 }
 
 
@@ -330,7 +334,7 @@ li {
     width: 468px;
     height: 400px;
     overflow: hidden;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
     z-index: 1;
     opacity: 1;
 }
