@@ -209,8 +209,10 @@
    */
   var renderImagsToHtml = function (imagesData) {
     //1、默认显示一张缩放图片
-    var normalImg = document.querySelector('#normalimgdiv img');
-    normalImg.src = imagesData.imgType1[0].src;
+    var normalimg = document.querySelector('#normalimgdiv img');//单张缩略图
+    var specitems = document.querySelector('#specitems ul');//多张缩略图
+    var maximg = document.getElementById('maximg');//放大图
+    normalimg.src = imagesData.imgType1[0].src;
     //2、默认显示一组缩略图
     var specitems = document.querySelector('#specitems ul');
     for (var i = 0; i < imagesData.imgType1.length; i++) {
@@ -241,9 +243,6 @@
       var li = list[i];
       li.onmouseover = (function (index) {
         return function () {
-          var normalimg = document.querySelector('#normalimgdiv img');//单张缩略图
-          var specitems = document.querySelector('#specitems ul');//多张缩略图
-          var maximg = document.getElementById('maximg');//放大图
           for (var i = 0; i < specitems.children.length; i++) {
             if (index != i) {
               var li = specitems.children[i];
@@ -270,11 +269,22 @@
         };
       })(i);
 
-      li.onmouseout = (function(index){
-        return function(){
+      li.onmouseout = (function (index) {
+        return function (e) {
+          //1、鼠标离开当前li，就清空样式
           var li = specitems.children[index];
-          var img = li.firstChild;
-          img.className = '';
+          var currentImg = li.firstChild;
+          currentImg.className = '';
+          //2、当鼠标离开li，判断鼠标有没有进入其他li的，如果没有,就把样式重新赋值给当前li
+          for (var i = 0; i < specitems.children.length; i++) {
+            var li = specitems.children[i];
+            var img = li.firstChild;
+            var clsFlag = img.hasAttribute('class');
+            if (clsFlag === true && img.getAttribute('class') != 'stld') {
+              currentImg.className = 'stld';
+              return;
+            }
+          }
         }
       })(i);
     }
@@ -286,9 +296,6 @@
         console.log(e);
         var cgyDiv = e.target;
         var cgyType = cgyDiv.getAttribute('category-index');
-        var specitems = document.querySelector('#specitems ul');//多张缩略图
-        var maximg = document.getElementById('maximg');//放大图
-        var normalimg = document.querySelector('#normalimgdiv img');//单张缩略图
         if (cgyType == '0') {//场景图
           imgCgyFlag = 0;
           for (var i = 0; i < imagesData.imgType1.length; i++) {
@@ -335,31 +342,6 @@
     imgprv.onclick = function (e) {
       e.preventDefault();
       //1、获取到li缩略图数据及当前选中的缩略图的index
-      debugger;
-      var liList = specitems.children;
-      var crtImgIdx = 0;
-      for (var i = 0; i < liList.length; i++) {
-        var img = liList[i].firstChild;
-        var clsFlag = img.hasAttribute('class');
-        if (clsFlag === true) {
-          crtImgIdx = i;
-          return;
-        }
-      }
-      //2、根据缩略图索引值判断是否还有上一张图片
-      if (liList.length > 3 && crtImgIdx > 3) {  //这个 3 是因为在设计html和css时，只设计了显示3张缩略图的宽度
-        //1、计算偏移量
-
-        //2、设置坐标位置
-
-        //3、
-      }
-
-    };
-    imgnext.onclick = function (e) {
-      e.preventDefault();
-      //1、获取到li缩略图数据及当前选中的缩略图的index
-      debugger;
       var liList = specitems.children;
       var crtImgIdx = 0;
       for (var i = 0; i < liList.length; i++) {
@@ -367,30 +349,53 @@
         var clsFlag = img.hasAttribute('class');
         if (clsFlag === true) {
           if (img.getAttribute('class') == 'stld') {
-            //crtImgIdx = i;
+            crtImgIdx = parseInt(img.getAttribute('data-index'));
+          }
+        }
+      }
+      //2、根据缩略图索引值显示上一张图片
+      if (crtImgIdx == 0) return;
+      liList[crtImgIdx].firstChild.className = '';
+      liList[crtImgIdx - 1].firstChild.className = 'stld';
+      liList[crtImgIdx - 1].style.display = 'block';
+      normalimg.src = liList[crtImgIdx-1].firstChild.src;
+      maximg.src = liList[crtImgIdx-1].firstChild.src;
+    };
+
+    /**
+     * 下一张图片
+     * @param {*} e 
+     */
+    imgnext.onclick = function (e) {
+      e.preventDefault();
+      //1、获取到li缩略图数据及当前选中的缩略图的index
+      var liList = specitems.children;
+      var crtImgIdx = 0;
+      for (var i = 0; i < liList.length; i++) {
+        var img = liList[i].firstChild;
+        var clsFlag = img.hasAttribute('class');
+        if (clsFlag === true) {
+          if (img.getAttribute('class') == 'stld') {
             crtImgIdx = parseInt(img.getAttribute('data-index'));
           }
         }
       }
       //2、判断是否有下一张图片
-      if (crtImgIdx < liList.length - 1) {
-        if (crtImgIdx == 0) {
-          liList[crtImgIdx].style.display = 'none';
-          liList[crtImgIdx+1].firstChild.className = 'stld';
-        }
-        if (crtImgIdx > 0) {
-          if(liList.length - crtImgIdx <= 3 ){
-            liList[crtImgIdx].firstChild.className = '';
-            liList[crtImgIdx+1].firstChild.className = 'stld';
-          }else{
-            liList[crtImgIdx].style.display = 'none';
-            liList[crtImgIdx+1].firstChild.className = 'stld';
-          }
-        }
-
+      if (crtImgIdx == liList.length - 1) return;
+      if (crtImgIdx < 2) {
+        liList[crtImgIdx].firstChild.className = '';
+        liList[crtImgIdx + 1].firstChild.className = 'stld';
+        normalimg.src = liList[crtImgIdx + 1].firstChild.src;
+        maximg.src = liList[crtImgIdx + 1].firstChild.src;
       } else {
-        return;
+        liList[crtImgIdx + 1].style.display = 'block';
+        liList[crtImgIdx + 1].firstChild.className = 'stld';
+        normalimg.src = liList[crtImgIdx + 1].firstChild.src;
+        maximg.src = liList[crtImgIdx + 1].firstChild.src;
+        liList[(crtImgIdx + 1) - 3].style.display = 'none';
+        liList[crtImgIdx].firstChild.className = '';
       }
+
     };
 
   };
